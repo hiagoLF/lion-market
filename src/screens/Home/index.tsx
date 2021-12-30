@@ -22,17 +22,15 @@ import {
 } from "react-native-paper";
 import { FAB } from "react-native-paper";
 import useKeyboard from "@rnhooks/keyboard";
+import axios from "axios";
 
-const product = {
-  title: 'Smart TV 42" Philco Roku LED Full HD',
-  description:
-    'TV PHILCO ROKU com 42" e resolução Full HD em LED. A tecnologia FAST SMART entrega velocidade de navegação entre aplicativos muito grande, com sistema ROKU o mais utilizado nos EUA, com visual intuitivo e sofisticado',
-  price: "1.799,99",
-  image:
-    "https://images-americanas.b2w.io/produtos/01/00/img/3280822/5/3280822569_1SZ.jpg",
+type Product = {
+  title: string;
+  description: string;
+  price: string;
+  imageUrl: string;
+  created_at: string;
 };
-
-const products = new Array(5).fill(product);
 
 export const HomeScreen: React.FC = () => {
   const { colors } = useTheme();
@@ -43,8 +41,9 @@ export const HomeScreen: React.FC = () => {
   const [isRemovingProduct, setIsRemovingProduct] = useState(false);
   const [isSearchBarOpen, setIsSearchBarOpen] = useState(false);
   const [visible] = useKeyboard();
-  const [productsList, setProductsList] = useState<any[]>([]);
+  const [productsList, setProductsList] = useState<Product[]>([]);
   const [loadingData, setLoadingData] = useState(false);
+  const [currentProductPage, setCurrentProductPage] = useState(1);
 
   async function handleRemoveProductButtonPress() {
     setIsRemovingProduct(true);
@@ -56,9 +55,15 @@ export const HomeScreen: React.FC = () => {
   async function handleProductsListEndReached() {
     if (loadingData) return;
     setLoadingData(true);
-    await new Promise((resolve) => setTimeout(() => resolve(""), 3000));
-    setProductsList((prev) => [...prev, ...products]);
+    const newProducts = await getProducts(currentProductPage + 1);
+    setCurrentProductPage((prev) => prev + 1);
+    setProductsList((prev) => [...prev, ...newProducts.data]);
     setLoadingData(false);
+  }
+
+  async function getProducts(page: number) {
+    const response = await axios.get("/api/products/1");
+    return response.data;
   }
 
   useEffect(() => {
@@ -68,7 +73,12 @@ export const HomeScreen: React.FC = () => {
   }, [visible]);
 
   useEffect(() => {
-    setProductsList(products);
+    async function findInitialProducts() {
+      const response = await getProducts(1);
+      setProductsList(response.data);
+    }
+
+    findInitialProducts();
   }, []);
 
   return (
@@ -99,7 +109,7 @@ export const HomeScreen: React.FC = () => {
       </Appbar.Header>
       <FlatList
         data={productsList}
-        renderItem={(item) => (
+        renderItem={(info) => (
           <Card
             onLongPress={() => setIsDeleteProductModalOpen(true)}
             style={{ margin: 5 }}
@@ -107,14 +117,14 @@ export const HomeScreen: React.FC = () => {
           >
             <Card.Cover
               source={{
-                uri: product.image,
+                uri: info.item.imageUrl,
               }}
             />
             <Card.Content>
-              <Title style={{ fontSize: 15 }}>{product.title}</Title>
-              <Title style={{ fontSize: 20 }}>R$ {product.price}</Title>
+              <Title style={{ fontSize: 15 }}>{info.item.title}</Title>
+              <Title style={{ fontSize: 20 }}>R$ {info.item.price}</Title>
               <Paragraph style={{ fontSize: 11, lineHeight: 13 }}>
-                {product.description}
+                {info.item.description}
               </Paragraph>
             </Card.Content>
           </Card>
@@ -125,7 +135,14 @@ export const HomeScreen: React.FC = () => {
       />
 
       {loadingData && (
-        <View style={{ marginVertical: 10, position: "absolute", bottom: 0, width: '100%' }}>
+        <View
+          style={{
+            marginVertical: 10,
+            position: "absolute",
+            bottom: 0,
+            width: "100%",
+          }}
+        >
           <ActivityIndicator animating={true} />
         </View>
       )}

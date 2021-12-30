@@ -10,16 +10,14 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "expo": {
-      "plugins": [
-        [
-          "expo-image-picker",
-          {
-            "photosPermission": "The app accesses your photos to get products images."
-          }
-        ]
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "The app accesses your photos to get products images."
+        }
       ]
-    },
+    ],
     "updates": {
       "fallbackToCacheTimeout": 0
     },
