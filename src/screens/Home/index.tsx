@@ -1,6 +1,6 @@
 import { useNavigation } from "@react-navigation/native";
 import React, { useEffect, useState } from "react";
-import { Image, ScrollView, View } from "react-native";
+import { FlatList, Image, ScrollView, View } from "react-native";
 import {
   Appbar,
   Card,
@@ -18,6 +18,7 @@ import {
   Snackbar,
   Banner,
   Searchbar,
+  ActivityIndicator,
 } from "react-native-paper";
 import { FAB } from "react-native-paper";
 import useKeyboard from "@rnhooks/keyboard";
@@ -31,7 +32,7 @@ const product = {
     "https://images-americanas.b2w.io/produtos/01/00/img/3280822/5/3280822569_1SZ.jpg",
 };
 
-const products = new Array(10).fill(product);
+const products = new Array(5).fill(product);
 
 export const HomeScreen: React.FC = () => {
   const { colors } = useTheme();
@@ -42,6 +43,8 @@ export const HomeScreen: React.FC = () => {
   const [isRemovingProduct, setIsRemovingProduct] = useState(false);
   const [isSearchBarOpen, setIsSearchBarOpen] = useState(false);
   const [visible] = useKeyboard();
+  const [productsList, setProductsList] = useState<any[]>([]);
+  const [loadingData, setLoadingData] = useState(false);
 
   async function handleRemoveProductButtonPress() {
     setIsRemovingProduct(true);
@@ -50,11 +53,23 @@ export const HomeScreen: React.FC = () => {
     setIsDeleteProductModalOpen(false);
   }
 
+  async function handleProductsListEndReached() {
+    if (loadingData) return;
+    setLoadingData(true);
+    await new Promise((resolve) => setTimeout(() => resolve(""), 3000));
+    setProductsList((prev) => [...prev, ...products]);
+    setLoadingData(false);
+  }
+
   useEffect(() => {
     if (!visible) {
       setIsSearchBarOpen(false);
     }
   }, [visible]);
+
+  useEffect(() => {
+    setProductsList(products);
+  }, []);
 
   return (
     <View style={{ height: "100%" }}>
@@ -82,12 +97,11 @@ export const HomeScreen: React.FC = () => {
           </>
         )}
       </Appbar.Header>
-
-      <ScrollView style={{ flex: 1 }}>
-        {products.map((product, key) => (
+      <FlatList
+        data={productsList}
+        renderItem={(item) => (
           <Card
             onLongPress={() => setIsDeleteProductModalOpen(true)}
-            key={key}
             style={{ margin: 5 }}
             mode="elevated"
           >
@@ -104,8 +118,17 @@ export const HomeScreen: React.FC = () => {
               </Paragraph>
             </Card.Content>
           </Card>
-        ))}
-      </ScrollView>
+        )}
+        keyExtractor={(item, index) => String(index)}
+        onEndReachedThreshold={0}
+        onEndReached={handleProductsListEndReached}
+      />
+
+      {loadingData && (
+        <View style={{ marginVertical: 10, position: "absolute", bottom: 0, width: '100%' }}>
+          <ActivityIndicator animating={true} />
+        </View>
+      )}
 
       <FAB
         style={{
@@ -120,7 +143,6 @@ export const HomeScreen: React.FC = () => {
         color={colors.surface}
         onPress={() => navigate("CreateProduct" as never)}
       />
-
       <Portal>
         <Modal
           visible={isDeleteProductModalOpen}
