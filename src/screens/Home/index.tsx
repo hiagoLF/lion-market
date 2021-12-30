@@ -1,6 +1,6 @@
 import { useNavigation } from "@react-navigation/native";
-import React, { useState } from "react";
-import { ScrollView, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import { Image, ScrollView, View } from "react-native";
 import {
   Appbar,
   Card,
@@ -16,8 +16,11 @@ import {
   Button,
   Avatar,
   Snackbar,
+  Banner,
+  Searchbar,
 } from "react-native-paper";
 import { FAB } from "react-native-paper";
+import useKeyboard from "@rnhooks/keyboard";
 
 const product = {
   title: 'Smart TV 42" Philco Roku LED Full HD',
@@ -32,26 +35,52 @@ const products = new Array(10).fill(product);
 
 export const HomeScreen: React.FC = () => {
   const { colors } = useTheme();
+  const { navigate } = useNavigation();
+
   const [isDeleteProductModalOpen, setIsDeleteProductModalOpen] =
     useState(false);
   const [isRemovingProduct, setIsRemovingProduct] = useState(false);
-  const { navigate } = useNavigation();
+  const [isSearchBarOpen, setIsSearchBarOpen] = useState(false);
+  const [visible] = useKeyboard();
 
   async function handleRemoveProductButtonPress() {
-    console.log("removerndo");
     setIsRemovingProduct(true);
     await new Promise((resolve) => setTimeout(() => resolve(""), 3000));
     setIsRemovingProduct(false);
     setIsDeleteProductModalOpen(false);
   }
 
-  function handleCloseModalRequest() {}
+  useEffect(() => {
+    if (!visible) {
+      setIsSearchBarOpen(false);
+    }
+  }, [visible]);
 
   return (
     <View style={{ height: "100%" }}>
-      <Appbar.Header>
-        <Appbar.Content title="Lion Market" />
-        <Appbar.Action icon="magnify" onPress={() => alert("pesquisa")} />
+      <Appbar.Header
+        style={{
+          backgroundColor: isSearchBarOpen ? colors.surface : colors.primary,
+        }}
+      >
+        {isSearchBarOpen ? (
+          <Searchbar
+            placeholder="Search"
+            onIconPress={() => setIsSearchBarOpen(false)}
+            autoFocus
+            onChangeText={() => {}}
+            value=""
+            autoComplete={false}
+          />
+        ) : (
+          <>
+            <Appbar.Content title="Lion Market" />
+            <Appbar.Action
+              icon="magnify"
+              onPress={() => setIsSearchBarOpen(true)}
+            />
+          </>
+        )}
       </Appbar.Header>
 
       <ScrollView style={{ flex: 1 }}>
