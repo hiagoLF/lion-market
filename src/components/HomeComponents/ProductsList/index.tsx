@@ -16,38 +16,43 @@ interface ProductsListProps {
   productsList: Product[];
   onProductLongPress: (productId: string) => void;
   handleProductsListEndReached: () => void;
+  onRefresh?: () => void;
+  refreshing?: boolean;
 }
 
 const ProductsList: React.FC<ProductsListProps> = ({
   productsList,
   onProductLongPress,
   handleProductsListEndReached,
+  onRefresh,
+  refreshing
 }) => {
+
   return (
     <FlatList
       data={productsList}
-      renderItem={(info) => (
+      renderItem={({ item }) => (
         <Card
-          onLongPress={() => onProductLongPress(info.item.id)}
+          onLongPress={() => onProductLongPress(item.id)}
           style={styles.card}
           mode="elevated"
         >
           <Card.Cover
             source={{
-              uri: info.item.imageUrl,
+              uri: item.imageUrl,
             }}
           />
           <Card.Content>
-            <Title style={styles.title}>{info.item.title}</Title>
-            <Title style={styles.price}>R$ {info.item.price}</Title>
-            <Paragraph style={styles.description}>
-              {info.item.description}
-            </Paragraph>
+            <Title style={styles.title}>{item.title}</Title>
+            <Title style={styles.price}>R$ {item.price}</Title>
+            <Paragraph style={styles.description}>{item.description}</Paragraph>
           </Card.Content>
         </Card>
       )}
+      onRefresh={onRefresh}
+      refreshing={refreshing}
       keyExtractor={(item) => String(item.id)}
-      onEndReachedThreshold={0}
+      onEndReachedThreshold={0.5}
       onEndReached={handleProductsListEndReached}
     />
   );

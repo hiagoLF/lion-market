@@ -3,12 +3,16 @@ import { View } from "react-native";
 import { ActivityIndicator } from "react-native-paper";
 import styles from './styles'
 
-const Loading: React.FC = () => {
+interface LoadingProps {
+  position: 'center' | 'bottom'
+}
+
+const Loading: React.FC<LoadingProps> = ({position}) => {
   return (
     <View
-      style={styles.loadingContainer}
+      style={{...styles.loadingContainer, bottom: position === 'center' ? '40%' : 0}}
     >
-      <ActivityIndicator animating={true} />
+      <ActivityIndicator animating={true} size={40}/>
     </View>
   );
 };
