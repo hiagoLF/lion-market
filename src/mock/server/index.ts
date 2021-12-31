@@ -40,6 +40,8 @@ export function startFakeServer() {
     },
 
     routes() {
+      this.timing = 2000;
+
       this.namespace = "/api";
 
       this.get("/products/:page", (schema, request) => {
@@ -49,9 +51,7 @@ export function startFakeServer() {
           pagination: {
             currentPage: page,
             pagesNumber: Math.ceil(products.length / 10),
-            itemsPerPage: 10,
           },
-          totalItemsNumber: products.length,
           data: products.models.slice(10 * (page - 1), 10 * (page - 1) - 10),
         };
 
