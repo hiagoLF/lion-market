@@ -27,7 +27,7 @@ export const HomeScreen: React.FC = () => {
       {productsList.length !== 0 && (
         <ProductsList
           handleProductsListEndReached={handleProductsListEndReached}
-          onProductLongPress={(productId) => setIsDeleteProductModalOpen(true)}
+          handleProductRemoveRequest={(productId) => setIsDeleteProductModalOpen(true)}
           productsList={productsList}
           onRefresh={handleRefreshList}
           refreshing={refreshingList}

@@ -1,6 +1,7 @@
 import React from "react";
 import { FlatList } from "react-native";
-import { Card, Paragraph, Title } from "react-native-paper";
+import { Card, Paragraph, Title, useTheme } from "react-native-paper";
+import Swipeout from "react-native-swipeout";
 import styles from "./styles";
 
 type Product = {
@@ -14,7 +15,7 @@ type Product = {
 
 interface ProductsListProps {
   productsList: Product[];
-  onProductLongPress: (productId: string) => void;
+  handleProductRemoveRequest: (productId: string) => void;
   handleProductsListEndReached: () => void;
   onRefresh?: () => void;
   refreshing?: boolean;
@@ -22,32 +23,43 @@ interface ProductsListProps {
 
 const ProductsList: React.FC<ProductsListProps> = ({
   productsList,
-  onProductLongPress,
+  handleProductRemoveRequest,
   handleProductsListEndReached,
   onRefresh,
-  refreshing
+  refreshing,
 }) => {
+  const { colors } = useTheme();
 
   return (
     <FlatList
       data={productsList}
       renderItem={({ item }) => (
-        <Card
-          onLongPress={() => onProductLongPress(item.id)}
-          style={styles.card}
-          mode="elevated"
+        <Swipeout
+          right={[{ text: "Editar", backgroundColor: colors.primary }]}
+          left={[
+            {
+              text: "Remover",
+              type: "delete",
+              onPress: () => handleProductRemoveRequest(item.id),
+            },
+          ]}
+          style={styles.swiper}
         >
-          <Card.Cover
-            source={{
-              uri: item.imageUrl,
-            }}
-          />
-          <Card.Content>
-            <Title style={styles.title}>{item.title}</Title>
-            <Title style={styles.price}>R$ {item.price}</Title>
-            <Paragraph style={styles.description}>{item.description}</Paragraph>
-          </Card.Content>
-        </Card>
+          <Card style={styles.card} mode="elevated">
+            <Card.Cover
+              source={{
+                uri: item.imageUrl,
+              }}
+            />
+            <Card.Content>
+              <Title style={styles.title}>{item.title}</Title>
+              <Title style={styles.price}>R$ {item.price}</Title>
+              <Paragraph style={styles.description}>
+                {item.description}
+              </Paragraph>
+            </Card.Content>
+          </Card>
+        </Swipeout>
       )}
       onRefresh={onRefresh}
       refreshing={refreshing}
