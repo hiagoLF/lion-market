@@ -1,6 +1,11 @@
 import { Factory, Model, createServer, Response } from "miragejs";
 import faker from "faker";
 
+type LoginRequestBody = {
+  login?: string;
+  password?: string;
+};
+
 type Product = {
   title: string;
   description: string;
@@ -61,6 +66,17 @@ window.server = createServer({
         data: products.models.slice(10 * page - 10, 10 * page),
       };
       return new Response(200, {}, dataToSentd);
+    });
+
+    this.post("/login", (schema, request) => {
+      const { login, password } = JSON.parse(
+        request.requestBody
+      ) as LoginRequestBody;
+      if (login !== "admin")
+        return new Response(404, {}, { error: "user not found" });
+      if (password !== "admin")
+        return new Response(404, {}, { error: "wrong password" });
+      return { token: "IDFDF89N23OSDJFSDF009F8F9G9DF8GS" };
     });
 
     // this.namespace = "";
