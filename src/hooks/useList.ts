@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useRequests } from "../context/RequestsContext";
 import { findProductsFromApi } from "../services/api/requests";
 
 type Product = {
@@ -15,10 +16,11 @@ const useList = () => {
   const [isLoadingData, setIsLoadingData] = useState(false);
   const [productsPage, setProductsPage] = useState<number | "last">(0);
   const [refreshingList, setRefreshingList] = useState(false);
+  const { findProducts } = useRequests();
 
   async function handleRefreshList() {
     setRefreshingList(true);
-    increaseProducts(1);
+    await increaseProducts(1);
     setRefreshingList(false);
   }
 
@@ -30,7 +32,7 @@ const useList = () => {
   async function increaseProducts(page: number) {
     if (isLoadingData) return;
     setIsLoadingData(true);
-    const response = await findProductsFromApi(page);
+    const response = await findProducts(page);
     if (!response) {
       setIsLoadingData(false);
       alert("Não foi possível carregar os dados");

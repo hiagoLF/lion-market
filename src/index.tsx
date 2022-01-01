@@ -13,8 +13,8 @@ const Stack = createNativeStackNavigator();
 export const LionMarktApp: React.FC = () => {
   return (
     <PaperProvider>
-      <RequestsProvider>
-        <NavigationContainer>
+      <NavigationContainer>
+        <RequestsProvider>
           <Stack.Navigator screenOptions={{ headerShown: false }}>
             <Stack.Screen name="Login" component={LoginScreen} />
             <Stack.Screen name="Home" component={HomeScreen} />
@@ -23,8 +23,8 @@ export const LionMarktApp: React.FC = () => {
               component={CreateProductScreen}
             />
           </Stack.Navigator>
-        </NavigationContainer>
-      </RequestsProvider>
+        </RequestsProvider>
+      </NavigationContainer>
     </PaperProvider>
   );
 };

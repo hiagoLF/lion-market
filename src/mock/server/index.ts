@@ -14,6 +14,8 @@ type Product = {
   created_at: string;
 };
 
+const testToken = "IDFDF89N23OFFCSDJFSDF009F8F9G9DF8GS";
+
 // @ts-ignore
 if (window.server) {
   // @ts-ignore
@@ -56,6 +58,10 @@ window.server = createServer({
     this.namespace = "/api";
 
     this.get("/products/:page", (schema, request) => {
+      const token = request.requestHeaders.token as String;
+      if (token.split(" ")[1] !== testToken) {
+        return new Response(401, {}, { error: "Incorrect token" });
+      }
       const products = this.schema.all("product");
       const page = Number(request.params.page);
       const dataToSentd = {
@@ -76,7 +82,7 @@ window.server = createServer({
         return new Response(404, {}, { error: "user not found" });
       if (password !== "admin")
         return new Response(404, {}, { error: "wrong password" });
-      return { token: "IDFDF89N23OSDJFSDF009F8F9G9DF8GS" };
+      return { token: testToken };
     });
 
     // this.namespace = "";

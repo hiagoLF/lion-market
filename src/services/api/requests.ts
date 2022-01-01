@@ -1,8 +1,8 @@
 import { api } from "./base";
 
-export async function findProductsFromApi(productPage: number) {
+export async function findProductsFromApi(productPage: number, token: string) {
   try {
-    const response = await api.get(`/products/${productPage}`);
+    const response = await api.get(`/products/${productPage}`, {headers: {token: `Bearer ${token}`}});
     if (!response) {
       throw new Error("Error");
     }

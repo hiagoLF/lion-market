@@ -1,10 +1,7 @@
-import { useNavigation } from "@react-navigation/native";
-import React, { useEffect, useState } from "react";
-import { Keyboard, View } from "react-native";
+import React from "react";
+import { View } from "react-native";
 import { Button, Headline, Subheading, TextInput } from "react-native-paper";
-import { useRequests } from "../../context/RequestsContext";
 import { useLogin } from "../../hooks/useLogin";
-import { api } from "../../services/api/base";
 import styles from "./styles";
 
 export const LoginScreen: React.FC = () => {
