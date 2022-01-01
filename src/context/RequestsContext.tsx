@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import { findProductsFromApi, loginUserOnApi } from "../services/api/requests";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
@@ -29,13 +29,24 @@ type ProductsResponse = {
 type RequestsContextProps = {
   loginUser: LoginUser;
   findProducts: FindProducts;
+  authenticationStatus: "checking" | "unauthenticated" | "authenticated";
 };
 
-async function storeToken(token: string) {
+async function storeToken(token: string | undefined) {
   try {
-    await AsyncStorage.setItem("@api_access_token", token);
+    await AsyncStorage.setItem("@api_access_token", token || "");
   } catch (e) {
     alert("Não foi possível armazenar informações de login no telefone");
+  }
+}
+
+async function recoverToken() {
+  try {
+    const tokenOnAsyncStorage = await AsyncStorage.getItem("@api_access_token");
+    if (!tokenOnAsyncStorage || tokenOnAsyncStorage === "") return undefined;
+    return tokenOnAsyncStorage;
+  } catch (e) {
+    return undefined;
   }
 }
 
@@ -43,12 +54,18 @@ const RequestsContext = createContext({} as RequestsContextProps);
 
 export const RequestsProvider: React.FC = ({ children }) => {
   const [userToken, setUserToken] = useState<string | undefined>(undefined);
+  const [authenticationStatus, setAuthenticationStatus] = useState<
+    "checking" | "unauthenticated" | "authenticated"
+  >("checking");
   const { reset } = useNavigation();
 
   function resetToLogin() {
     reset({
       routes: [{ name: "Login" as never }],
     });
+    setAuthenticationStatus("unauthenticated");
+    storeToken(undefined);
+    setUserToken(undefined);
   }
 
   const loginUser: LoginUser = async (login, password) => {
@@ -57,6 +74,7 @@ export const RequestsProvider: React.FC = ({ children }) => {
       return false;
     }
     setUserToken(loginResult.token);
+    storeToken(loginResult.token);
     return true;
   };
 
@@ -69,8 +87,24 @@ export const RequestsProvider: React.FC = ({ children }) => {
     return response;
   };
 
+  async function stablishAuthentication() {
+    const storedToken = await recoverToken();
+    if (!storedToken) {
+      setAuthenticationStatus("unauthenticated");
+      return;
+    }
+    setUserToken(storedToken);
+    setAuthenticationStatus("authenticated");
+  }
+
+  useEffect(() => {
+    stablishAuthentication();
+  }, []);
+
   return (
-    <RequestsContext.Provider value={{ loginUser, findProducts }}>
+    <RequestsContext.Provider
+      value={{ loginUser, findProducts, authenticationStatus }}
+    >
       {children}
     </RequestsContext.Provider>
   );

@@ -20,6 +20,7 @@ const useList = () => {
 
   async function handleRefreshList() {
     setRefreshingList(true);
+    setProductsList([])
     await increaseProducts(1);
     setRefreshingList(false);
   }

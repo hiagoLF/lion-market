@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from "react";
-import { RefreshControl, View } from "react-native";
+import React, { useState } from "react";
+import { View } from "react-native";
 import { Header } from "../../components/HomeComponents/Header";
 import { CreateProductFab } from "../../components/HomeComponents/CreateProductFab";
 import Loading from "../../components/HomeComponents/Loading";
 import ProductsList from "../../components/HomeComponents/ProductsList";
 import RemoveProductModal from "../../components/HomeComponents/RemoveProductModal";
-import { findProductsFromApi } from "../../services/api/requests";
 import useList from "../../hooks/useList";
 
 export const HomeScreen: React.FC = () => {
@@ -27,7 +26,9 @@ export const HomeScreen: React.FC = () => {
       {productsList.length !== 0 && (
         <ProductsList
           handleProductsListEndReached={handleProductsListEndReached}
-          handleProductRemoveRequest={(productId) => setIsDeleteProductModalOpen(true)}
+          handleProductRemoveRequest={(productId) =>
+            setIsDeleteProductModalOpen(true)
+          }
           productsList={productsList}
           onRefresh={handleRefreshList}
           refreshing={refreshingList}

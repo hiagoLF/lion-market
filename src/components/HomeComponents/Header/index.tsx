@@ -1,11 +1,11 @@
-import useKeyboard from "@rnhooks/keyboard";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Appbar, Searchbar, useTheme } from "react-native-paper";
 import useSearchBar from "./hooks/useSearchBar";
 
 export const Header: React.FC = () => {
   const { isSearchBarOpen, setIsSearchBarOpen, backgroundColor } =
     useSearchBar();
+  const { colors } = useTheme();
 
   return (
     <Appbar.Header
@@ -18,7 +18,7 @@ export const Header: React.FC = () => {
           placeholder="Search"
           onIconPress={() => setIsSearchBarOpen(false)}
           autoFocus
-          onChangeText={() => {}}
+          onChangeText={(text) => console.warn(text)}
           value=""
           autoComplete={false}
         />
@@ -28,6 +28,7 @@ export const Header: React.FC = () => {
           <Appbar.Action
             icon="magnify"
             onPress={() => setIsSearchBarOpen(true)}
+            color={colors.surface}
           />
         </>
       )}

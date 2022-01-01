@@ -14,7 +14,7 @@ type Product = {
   created_at: string;
 };
 
-const testToken = "IDFDF89N23OFFCSDJFSDF009F8F9G9DF8GS";
+const testToken = "IDFDF89N23OFFCSDJFSDF009F8F9G9DF8GSds";
 
 // @ts-ignore
 if (window.server) {
@@ -53,7 +53,7 @@ window.server = createServer({
   },
 
   routes() {
-    this.timing = 2000;
+    // this.timing = 2000;
 
     this.namespace = "/api";
 
@@ -85,7 +85,6 @@ window.server = createServer({
       return { token: testToken };
     });
 
-    // this.namespace = "";
     this.passthrough();
   },
 });

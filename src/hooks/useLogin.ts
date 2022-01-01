@@ -9,7 +9,6 @@ export const useLogin = () => {
   const [buttonDisabled, setButtonDisable] = useState(true);
   const [isSubmiting, setIsSubmiting] = useState(false);
   const { reset } = useNavigation();
-
   const { loginUser } = useRequests();
 
   useEffect(() => {
@@ -36,5 +35,13 @@ export const useLogin = () => {
     });
   }
 
-  return {login, password, setLogin, setPassword, handleLoginButtonPress, buttonDisabled, isSubmiting}
+  return {
+    login,
+    password,
+    setLogin,
+    setPassword,
+    handleLoginButtonPress,
+    buttonDisabled,
+    isSubmiting,
+  };
 };
