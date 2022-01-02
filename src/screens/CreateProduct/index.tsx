@@ -4,7 +4,6 @@ import { Image, ScrollView, TouchableOpacity, View } from "react-native";
 import {
   Appbar,
   Avatar,
-  Banner,
   Button,
   TextInput,
   Title,
@@ -13,10 +12,12 @@ import {
 import CurrencyInput from "react-native-currency-input";
 import * as ImagePicker from "expo-image-picker";
 import EmptyImg from "../../../assets/empty-img.png";
+import { useRequests } from "../../context/RequestsContext";
 
 export const CreateProductScreen: React.FC = () => {
   const { goBack } = useNavigation();
   const { colors, fonts } = useTheme();
+  const { createProduct, changeProductImage } = useRequests();
 
   const [image, setImage] = useState<string | undefined>(undefined);
   const [title, setTitle] = useState("");
@@ -37,11 +38,40 @@ export const CreateProductScreen: React.FC = () => {
     }
   };
 
+  async function uploadImage(productId: string) {
+    const formData = new FormData();
+    formData.append("productImage", {
+      // @ts-ignore
+      name: "postimage",
+      type: "image/jpeg",
+      uri: image,
+    });
+    const uploadResponse = changeProductImage(productId, formData);
+    if (!uploadResponse) {
+      alert("Não foi possível fazer upload desta imagem");
+      return false;
+    }
+  }
+
+  async function createNewProduct() {
+    const response = await createProduct({
+      title,
+      description,
+      price: price || 0,
+    });
+    console.warn("Recebido aqui >>> ", response);
+    if (!response) {
+      alert("Não foi possível criar este produto");
+      return undefined;
+    }
+    await uploadImage(response.id);
+  }
+
   async function handleSubmitProductButtonPress() {
-    console.log("submetendo");
     setIsSubmiting(true);
-    await new Promise((resolve) => setTimeout(() => resolve(""), 3000));
+    const created = await createNewProduct();
     setIsSubmiting(false);
+    if (!created) return;
     goBack();
   }
 
@@ -51,8 +81,6 @@ export const CreateProductScreen: React.FC = () => {
         <Appbar.BackAction onPress={goBack} />
         <Appbar.Content title="Adicionar Produto" />
       </Appbar.Header>
-
-
 
       <ScrollView style={{ flex: 1 }}>
         <View style={{ padding: 10 }}>

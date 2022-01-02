@@ -62,7 +62,9 @@ window.server = createServer({
       if (token.split(" ")[1] !== testToken) {
         return new Response(401, {}, { error: "Incorrect token" });
       }
-      const products = this.schema.all("product");
+      const products = this.schema
+        .all("product")
+        .sort((a, b) => (a.created_at > b.created_at ? 1 : -1));
       const title = request.queryParams.title;
 
       if (title && title !== "") {
@@ -97,6 +99,20 @@ window.server = createServer({
       const { productId } = request.params;
       this.schema.where("product", { id: productId }).destroy();
       return new Response(200);
+    });
+
+    this.post("/product", (schema, request) => {
+      const data = JSON.parse(request.requestBody);
+      const resp = schema.create("product", { ...data });
+      return { id: resp.id };
+    });
+
+    this.put("/product/image/:productId", (schema, request) => {
+      const data = JSON.parse(request.requestBody);
+      const { productId } = request.params;
+      console.warn('Product id que chegou aqui >>> ', productId)
+      console.warn('Formulário que chegou aqui >>> ', data)
+      return new Response(200)
     });
 
     this.post("/login", (schema, request) => {

@@ -18,10 +18,7 @@ export async function findProductsFromApi(
   }
 }
 
-export async function removeProductsFromApi(
-  productId: string,
-  token: string,
-){
+export async function removeProductsFromApi(productId: string, token: string) {
   try {
     const response = await api.delete(`/product/${productId}`, {
       headers: { token: `Bearer ${token}` },
@@ -31,6 +28,54 @@ export async function removeProductsFromApi(
     }
     return response.data;
   } catch {
+    return undefined;
+  }
+}
+
+type CreateProductData = { title: string; description: string; price: number };
+
+export async function createProductOnApi(
+  data: CreateProductData,
+  token: string
+) {
+  try {
+    const response = await api.post(
+      `/product`,
+      { ...data },
+      {
+        headers: { token: `Bearer ${token}` },
+      }
+    );
+    if (!response) {
+      throw new Error("Error");
+    }
+    return response.data;
+  } catch {
+    return undefined;
+  }
+}
+
+export async function upLoadProductImageOnApi(
+  productId: string,
+  formData: FormData,
+  token: string
+) {
+  console.warn("Requisição será feita >>> ", productId);
+  console.warn("O form que será usado >>> ", formData);
+  try {
+    const response = await api.put(`/product/image/${productId}`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        token: `Bearer ${token}`,
+      },
+    });
+    console.warn("ta vindo aqui >>> ", response);
+    if (!response) {
+      throw new Error("");
+    }
+    return response.data;
+  } catch (err) {
+    console.warn("Deu erro aqui >>> ", err);
     return undefined;
   }
 }

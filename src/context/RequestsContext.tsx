@@ -1,5 +1,11 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { findProductsFromApi, loginUserOnApi, removeProductsFromApi } from "../services/api/requests";
+import {
+  createProductOnApi,
+  findProductsFromApi,
+  loginUserOnApi,
+  removeProductsFromApi,
+  upLoadProductImageOnApi,
+} from "../services/api/requests";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 
@@ -11,6 +17,19 @@ type FindProducts = (
 ) => Promise<ProductsResponse | undefined>;
 
 type RemoveProduct = (productId: string) => Promise<boolean>;
+
+type CreateProductProps = { title: string; description: string; price: number };
+
+type CreateProduct = (
+  data: CreateProductProps
+) => Promise<CreateProductResponse | undefined>;
+
+type CreateProductResponse = { id: string };
+
+type ChangeProductImage = (
+  productId: string,
+  imageFormData: FormData
+) => Promise<boolean>;
 
 type Product = {
   id: string;
@@ -36,6 +55,8 @@ type RequestsContextProps = {
   findProducts: FindProducts;
   authenticationStatus: "checking" | "unauthenticated" | "authenticated";
   removeProduct: RemoveProduct;
+  createProduct: CreateProduct;
+  changeProductImage: ChangeProductImage;
 };
 
 async function storeToken(token: string | undefined) {
@@ -100,7 +121,30 @@ export const RequestsProvider: React.FC = ({ children }) => {
   const removeProduct: RemoveProduct = async (productId) => {
     const response = await removeProductsFromApi(
       productId,
-      userToken as string,
+      userToken as string
+    );
+    if (!response) {
+      return false;
+    }
+    return true;
+  };
+
+  const createProduct: CreateProduct = async (data) => {
+    const response = await createProductOnApi(data, userToken as string);
+    if (!response) {
+      return undefined;
+    }
+    return response;
+  };
+
+  const changeProductImage: ChangeProductImage = async (
+    productId,
+    formData
+  ) => {
+    const response = await upLoadProductImageOnApi(
+      productId,
+      formData,
+      userToken as string
     );
     if (!response) {
       return false;
@@ -124,7 +168,14 @@ export const RequestsProvider: React.FC = ({ children }) => {
 
   return (
     <RequestsContext.Provider
-      value={{ loginUser, findProducts, authenticationStatus, removeProduct }}
+      value={{
+        loginUser,
+        findProducts,
+        authenticationStatus,
+        removeProduct,
+        createProduct,
+        changeProductImage,
+      }}
     >
       {children}
     </RequestsContext.Provider>
