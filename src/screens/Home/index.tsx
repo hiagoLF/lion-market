@@ -8,8 +8,10 @@ import RemoveProductModal from "../../components/HomeComponents/RemoveProductMod
 import useList from "../../hooks/useList";
 
 export const HomeScreen: React.FC = () => {
-  const [isDeleteProductModalOpen, setIsDeleteProductModalOpen] =
-    useState(false);
+  const [productToRemoveId, setProductToRemoveId] = useState<
+    undefined | string
+  >(undefined);
+
   const listRef = useRef<FlatList>(null);
   const {
     productsList,
@@ -18,24 +20,37 @@ export const HomeScreen: React.FC = () => {
     refreshingList,
     isLoadingData,
     handleSearchProduct,
+    setProductsList
   } = useList();
 
   function handleSearchProductQueryTyping(text: string) {
-    listRef.current?.scrollToIndex({ animated: true, index: 0, viewPosition: 0 });
+    listRef.current?.scrollToIndex({
+      animated: true,
+      index: 0,
+      viewPosition: 0,
+    });
     handleSearchProduct(text);
+  }
+
+  function handleRequestCloseModal(productId?: string) {
+    if (!!productId) {
+      const newList = productsList.filter(
+        (product) => product.id !== productId
+      );
+      setProductsList(newList)
+    }
+    setProductToRemoveId(undefined)
   }
 
   return (
     <View style={{ height: "100%" }}>
-      <Header
-        onSearch={handleSearchProductQueryTyping}
-      />
+      <Header onSearch={handleSearchProductQueryTyping} />
 
       {productsList.length !== 0 && (
         <ProductsList
           handleProductsListEndReached={handleProductsListEndReached}
           handleProductRemoveRequest={(productId) =>
-            setIsDeleteProductModalOpen(true)
+            setProductToRemoveId(productId)
           }
           productsList={productsList}
           onRefresh={handleRefreshList}
@@ -51,8 +66,8 @@ export const HomeScreen: React.FC = () => {
       )}
 
       <RemoveProductModal
-        isOpen={isDeleteProductModalOpen}
-        requestCloseModal={() => setIsDeleteProductModalOpen(false)}
+        productToRemoveId={productToRemoveId}
+        requestCloseModal={handleRequestCloseModal}
       />
     </View>
   );

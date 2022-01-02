@@ -77,6 +77,7 @@ const useList = () => {
     refreshingList,
     isLoadingData,
     handleSearchProduct,
+    setProductsList
   };
 };
 

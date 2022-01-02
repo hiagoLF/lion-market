@@ -1,11 +1,16 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { findProductsFromApi, loginUserOnApi } from "../services/api/requests";
+import { findProductsFromApi, loginUserOnApi, removeProductsFromApi } from "../services/api/requests";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 
 type LoginUser = (login: string, password: string) => Promise<boolean>;
 
-type FindProducts = (page: number, query?: string) => Promise<ProductsResponse | undefined>;
+type FindProducts = (
+  page: number,
+  query?: string
+) => Promise<ProductsResponse | undefined>;
+
+type RemoveProduct = (productId: string) => Promise<boolean>;
 
 type Product = {
   id: string;
@@ -30,6 +35,7 @@ type RequestsContextProps = {
   loginUser: LoginUser;
   findProducts: FindProducts;
   authenticationStatus: "checking" | "unauthenticated" | "authenticated";
+  removeProduct: RemoveProduct;
 };
 
 async function storeToken(token: string | undefined) {
@@ -79,12 +85,27 @@ export const RequestsProvider: React.FC = ({ children }) => {
   };
 
   const findProducts: FindProducts = async (page, query) => {
-    const response = await findProductsFromApi(page, userToken as string, query);
+    const response = await findProductsFromApi(
+      page,
+      userToken as string,
+      query
+    );
     if (!response) {
       resetToLogin();
       return undefined;
     }
     return response;
+  };
+
+  const removeProduct: RemoveProduct = async (productId) => {
+    const response = await removeProductsFromApi(
+      productId,
+      userToken as string,
+    );
+    if (!response) {
+      return false;
+    }
+    return true;
   };
 
   async function stablishAuthentication() {
@@ -103,7 +124,7 @@ export const RequestsProvider: React.FC = ({ children }) => {
 
   return (
     <RequestsContext.Provider
-      value={{ loginUser, findProducts, authenticationStatus }}
+      value={{ loginUser, findProducts, authenticationStatus, removeProduct }}
     >
       {children}
     </RequestsContext.Provider>

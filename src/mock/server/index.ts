@@ -81,9 +81,8 @@ window.server = createServer({
           return 0;
         });
       }
-      
+
       const page = Number(request.params.page);
-      console.warn(page);
       const dataToSentd = {
         pagination: {
           currentPage: page,
@@ -92,6 +91,12 @@ window.server = createServer({
         data: products.models.slice(10 * page - 10, 10 * page),
       };
       return new Response(200, {}, dataToSentd);
+    });
+
+    this.delete("/product/:productId", (schema, request) => {
+      const { productId } = request.params;
+      this.schema.where("product", { id: productId }).destroy();
+      return new Response(200);
     });
 
     this.post("/login", (schema, request) => {

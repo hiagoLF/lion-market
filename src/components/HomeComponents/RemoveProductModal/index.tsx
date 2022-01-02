@@ -5,21 +5,21 @@ import useRemoveProductModal from "./hooks/useRemoveProductModal";
 import styles from "./styles";
 
 interface RemoveProductModal {
-  requestCloseModal: () => void;
-  isOpen: boolean;
+  requestCloseModal: (productId?: string) => void;
+  productToRemoveId?: string;
 }
 
 const RemoveProductModal: React.FC<RemoveProductModal> = ({
   requestCloseModal,
-  isOpen,
+  productToRemoveId,
 }) => {
   const { isRemovingProduct, handleRemoveProductButtonPress } =
-    useRemoveProductModal({ requestCloseModal });
+    useRemoveProductModal({ requestCloseModal, productToRemoveId });
 
   return (
     <Portal>
       <Modal
-        visible={isOpen}
+        visible={!!productToRemoveId}
         dismissable={!isRemovingProduct}
         onDismiss={requestCloseModal}
         contentContainerStyle={styles.contentContainerStyle}
