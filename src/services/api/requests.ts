@@ -60,22 +60,27 @@ export async function upLoadProductImageOnApi(
   formData: FormData,
   token: string
 ) {
-  console.warn("Requisição será feita >>> ", productId);
-  console.warn("O form que será usado >>> ", formData);
+  // Durante o desenvolvimento
+  const fakeServerFormData = {
+    productImage: "Image",
+  };
+
   try {
-    const response = await api.put(`/product/image/${productId}`, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-        token: `Bearer ${token}`,
-      },
-    });
-    console.warn("ta vindo aqui >>> ", response);
+    const response = await api.put(
+      `/product/image/${productId}`,
+      fakeServerFormData,
+      {
+        headers: {
+          // "Content-Type": "multipart/form-data",
+          token: `Bearer ${token}`,
+        },
+      }
+    );
     if (!response) {
       throw new Error("");
     }
     return response.data;
   } catch (err) {
-    console.warn("Deu erro aqui >>> ", err);
     return undefined;
   }
 }

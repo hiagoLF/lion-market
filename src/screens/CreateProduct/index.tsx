@@ -51,6 +51,7 @@ export const CreateProductScreen: React.FC = () => {
       alert("Não foi possível fazer upload desta imagem");
       return false;
     }
+    return true;
   }
 
   async function createNewProduct() {
@@ -59,12 +60,12 @@ export const CreateProductScreen: React.FC = () => {
       description,
       price: price || 0,
     });
-    console.warn("Recebido aqui >>> ", response);
     if (!response) {
       alert("Não foi possível criar este produto");
       return undefined;
     }
     await uploadImage(response.id);
+    return true;
   }
 
   async function handleSubmitProductButtonPress() {

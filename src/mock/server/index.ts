@@ -110,9 +110,14 @@ window.server = createServer({
     this.put("/product/image/:productId", (schema, request) => {
       const data = JSON.parse(request.requestBody);
       const { productId } = request.params;
-      console.warn('Product id que chegou aqui >>> ', productId)
-      console.warn('Formulário que chegou aqui >>> ', data)
-      return new Response(200)
+      const product = this.schema.find("product", productId);
+      if (!product) {
+        return new Response(404);
+      }
+      product.update({
+        imageUrl: faker.image.food(),
+      });
+      return new Response(200);
     });
 
     this.post("/login", (schema, request) => {
