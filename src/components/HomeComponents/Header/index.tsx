@@ -1,10 +1,20 @@
-import React from "react";
+import React, { useState } from "react";
 import { Appbar, Searchbar, useTheme } from "react-native-paper";
 import useSearchBar from "./hooks/useSearchBar";
 
-export const Header: React.FC = () => {
-  const { isSearchBarOpen, setIsSearchBarOpen, backgroundColor } =
-    useSearchBar();
+type HeaderProps = {
+  onSearch: (text: string) => void;
+};
+
+export const Header: React.FC<HeaderProps> = ({ onSearch }) => {
+  const {
+    isSearchBarOpen,
+    setIsSearchBarOpen,
+    handleSearchBarRequestClose,
+    backgroundColor,
+    searchBarValue,
+    handleSearchBarChangeText,
+  } = useSearchBar({ onSearch });
   const { colors } = useTheme();
 
   return (
@@ -16,11 +26,12 @@ export const Header: React.FC = () => {
       {isSearchBarOpen ? (
         <Searchbar
           placeholder="Search"
-          onIconPress={() => setIsSearchBarOpen(false)}
+          onIconPress={handleSearchBarRequestClose}
           autoFocus
-          onChangeText={(text) => console.warn(text)}
-          value=""
+          onChangeText={handleSearchBarChangeText}
+          value={searchBarValue}
           autoComplete={false}
+          icon="arrow-left"
         />
       ) : (
         <>

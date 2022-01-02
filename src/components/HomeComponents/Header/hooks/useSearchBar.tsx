@@ -1,21 +1,48 @@
-import useKeyboard from "@rnhooks/keyboard";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTheme } from "react-native-paper";
 
-const useSearchBar = () => {
+type UseSearchBarProps = {
+  onSearch: (text: string) => void;
+};
+
+const useSearchBar = ({ onSearch }: UseSearchBarProps) => {
   const [isSearchBarOpen, setIsSearchBarOpen] = useState(false);
-  const [visible] = useKeyboard();
+  const [searchBarValue, setSearchBarValue] = useState("");
+  const [typingTimer, setTypingTimer] = useState<NodeJS.Timeout | null>(null);
+
   const { colors } = useTheme();
 
-  useEffect(() => {
-    if (!visible) {
-      setIsSearchBarOpen(false);
+  function handleSearchBarChangeText(text: string) {
+    setSearchBarValue(text);
+    if (typingTimer) {
+      clearTimeout(typingTimer);
     }
-  }, [visible]);
+    setTypingTimer(
+      setTimeout(() => {
+        onSearch(text);
+      }, 1500)
+    );
+  }
 
-  const backgroundColor = isSearchBarOpen ? colors.surface : colors.primary
+  function handleSearchBarRequestClose() {
+    if (typingTimer) clearTimeout(typingTimer);
+    if (searchBarValue !== "") {
+      handleSearchBarChangeText("");
+    }
+    handleSearchBarChangeText("");
+    setIsSearchBarOpen(false);
+  }
 
-  return { isSearchBarOpen, setIsSearchBarOpen, backgroundColor };
+  const backgroundColor = isSearchBarOpen ? colors.surface : colors.primary;
+
+  return {
+    isSearchBarOpen,
+    setIsSearchBarOpen,
+    handleSearchBarRequestClose,
+    backgroundColor,
+    searchBarValue,
+    handleSearchBarChangeText,
+  };
 };
 
 export default useSearchBar;

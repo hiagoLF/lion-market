@@ -5,7 +5,7 @@ import { useNavigation } from "@react-navigation/native";
 
 type LoginUser = (login: string, password: string) => Promise<boolean>;
 
-type FindProducts = (page: number) => Promise<ProductsResponse | undefined>;
+type FindProducts = (page: number, query?: string) => Promise<ProductsResponse | undefined>;
 
 type Product = {
   id: string;
@@ -78,8 +78,8 @@ export const RequestsProvider: React.FC = ({ children }) => {
     return true;
   };
 
-  const findProducts: FindProducts = async (page) => {
-    const response = await findProductsFromApi(page, userToken as string);
+  const findProducts: FindProducts = async (page, query) => {
+    const response = await findProductsFromApi(page, userToken as string, query);
     if (!response) {
       resetToLogin();
       return undefined;

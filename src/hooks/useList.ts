@@ -16,11 +16,12 @@ const useList = () => {
   const [isLoadingData, setIsLoadingData] = useState(false);
   const [productsPage, setProductsPage] = useState<number | "last">(0);
   const [refreshingList, setRefreshingList] = useState(false);
+  const [searchProductTitleQuery, setSearchProductTitleQuery] = useState<string | undefined>(undefined)
   const { findProducts } = useRequests();
 
   async function handleRefreshList() {
     setRefreshingList(true);
-    setProductsList([])
+    setProductsList([]);
     await increaseProducts(1);
     setRefreshingList(false);
   }
@@ -33,7 +34,7 @@ const useList = () => {
   async function increaseProducts(page: number) {
     if (isLoadingData) return;
     setIsLoadingData(true);
-    const response = await findProducts(page);
+    const response = await findProducts(page, searchProductTitleQuery);
     if (!response) {
       setIsLoadingData(false);
       alert("Não foi possível carregar os dados");
@@ -54,6 +55,16 @@ const useList = () => {
     setIsLoadingData(false);
   }
 
+  function handleSearchProduct(text: string) {
+    setSearchProductTitleQuery(text)
+  }
+
+  useEffect(() => {
+    if(searchProductTitleQuery !== undefined) {
+      increaseProducts(1)
+    }
+  }, [searchProductTitleQuery])
+
   useEffect(() => {
     if (productsList.length !== 0) return;
     increaseProducts(1);
@@ -65,6 +76,7 @@ const useList = () => {
     handleRefreshList,
     refreshingList,
     isLoadingData,
+    handleSearchProduct,
   };
 };
 

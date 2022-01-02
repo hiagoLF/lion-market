@@ -1,5 +1,5 @@
 import { Factory, Model, createServer, Response } from "miragejs";
-import faker from "faker";
+import faker from "faker/locale/pt_BR";
 
 type LoginRequestBody = {
   login?: string;
@@ -31,7 +31,7 @@ window.server = createServer({
   factories: {
     product: Factory.extend({
       title(index: number) {
-        return `Produto ${index + 1}`;
+        return faker.commerce.productName();
       },
       description() {
         return faker.lorem.sentence(30);
@@ -63,7 +63,27 @@ window.server = createServer({
         return new Response(401, {}, { error: "Incorrect token" });
       }
       const products = this.schema.all("product");
+      const title = request.queryParams.title;
+
+      if (title && title !== "") {
+        products.models.sort((a, b) => {
+          if (a.title.includes(title) && b.title.includes(title)) {
+            if (a.title.length > b.title.length) {
+              return -1;
+            }
+            if (a.title.length < b.title.length) {
+              return 1;
+            }
+            return 0;
+          }
+          if (a.title.includes(title)) return -1;
+          if (b.title.includes(title)) return 1;
+          return 0;
+        });
+      }
+      
       const page = Number(request.params.page);
+      console.warn(page);
       const dataToSentd = {
         pagination: {
           currentPage: page,

@@ -1,8 +1,14 @@
 import { api } from "./base";
 
-export async function findProductsFromApi(productPage: number, token: string) {
+export async function findProductsFromApi(
+  productPage: number,
+  token: string,
+  query?: string,
+) {
   try {
-    const response = await api.get(`/products/${productPage}`, {headers: {token: `Bearer ${token}`}});
+    const response = await api.get(`/products/${productPage}?title=${query}`, {
+      headers: { token: `Bearer ${token}` },
+    });
     if (!response) {
       throw new Error("Error");
     }
@@ -14,7 +20,7 @@ export async function findProductsFromApi(productPage: number, token: string) {
 
 export async function loginUserOnApi(login: string, password: string) {
   try {
-    const response = await api.post("/login", {login, password});
+    const response = await api.post("/login", { login, password });
     if (!response) {
       throw new Error();
     }
