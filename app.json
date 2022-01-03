@@ -16,7 +16,8 @@
         {
           "photosPermission": "The app accesses your photos to get products images."
         }
-      ]
+      ],
+      "@config-plugins/android-jsc-intl"
     ],
     "updates": {
       "fallbackToCacheTimeout": 0

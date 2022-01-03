@@ -1,7 +1,9 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import {
   createProductOnApi,
+  editProductOnApi,
   findProductsFromApi,
+  getProductsFromApi,
   loginUserOnApi,
   removeProductsFromApi,
   upLoadProductImageOnApi,
@@ -20,11 +22,18 @@ type RemoveProduct = (productId: string) => Promise<boolean>;
 
 type CreateProductProps = { title: string; description: string; price: number };
 
+type GetProduct = (productId: string) => Promise<Product | undefined>;
+
 type CreateProduct = (
   data: CreateProductProps
 ) => Promise<CreateProductResponse | undefined>;
 
 type CreateProductResponse = { id: string };
+
+type EditProduct = (
+  productId: string,
+  dataToEdit: Partial<Product>
+) => Promise<boolean>;
 
 type ChangeProductImage = (
   productId: string,
@@ -35,7 +44,7 @@ type Product = {
   id: string;
   title: string;
   description: string;
-  price: string;
+  price: number;
   imageUrl: string;
   created_at: string;
 };
@@ -57,6 +66,8 @@ type RequestsContextProps = {
   removeProduct: RemoveProduct;
   createProduct: CreateProduct;
   changeProductImage: ChangeProductImage;
+  editProduct: EditProduct;
+  getProduct: GetProduct;
 };
 
 async function storeToken(token: string | undefined) {
@@ -129,12 +140,35 @@ export const RequestsProvider: React.FC = ({ children }) => {
     return true;
   };
 
+  const getProduct: GetProduct = async (productId) => {
+    const response = await getProductsFromApi(
+      productId,
+      userToken as string
+    );
+    if (!response) {
+      return undefined;
+    }
+    return response.product;
+  };
+
   const createProduct: CreateProduct = async (data) => {
     const response = await createProductOnApi(data, userToken as string);
     if (!response) {
       return undefined;
     }
     return response;
+  };
+
+  const editProduct: EditProduct = async (productId, dataToEdit) => {
+    const response = await editProductOnApi(
+      productId,
+      dataToEdit,
+      userToken as string
+    );
+    if (!response) {
+      return false;
+    }
+    return true;
   };
 
   const changeProductImage: ChangeProductImage = async (
@@ -175,6 +209,8 @@ export const RequestsProvider: React.FC = ({ children }) => {
         removeProduct,
         createProduct,
         changeProductImage,
+        editProduct,
+        getProduct
       }}
     >
       {children}

@@ -9,7 +9,7 @@ type LoginRequestBody = {
 type Product = {
   title: string;
   description: string;
-  price: string;
+  price: number;
   imageUrl: string;
   created_at: string;
 };
@@ -96,19 +96,41 @@ window.server = createServer({
     });
 
     this.delete("/product/:productId", (schema, request) => {
+      const token = request.requestHeaders.token as String;
+      if (token.split(" ")[1] !== testToken) {
+        return new Response(401, {}, { error: "Incorrect token" });
+      }
       const { productId } = request.params;
       this.schema.where("product", { id: productId }).destroy();
       return new Response(200);
     });
 
+    this.get("/product/:productId", (schema, request) => {
+      const token = request.requestHeaders.token as String;
+      if (token.split(" ")[1] !== testToken) {
+        return new Response(401, {}, { error: "Incorrect token" });
+      }
+      const { productId } = request.params;
+      const product = this.schema.find('product', productId)
+      if(!product) return new Response(404)
+      return product;
+    });
+
     this.post("/product", (schema, request) => {
+      const token = request.requestHeaders.token as String;
+      if (token.split(" ")[1] !== testToken) {
+        return new Response(401, {}, { error: "Incorrect token" });
+      }
       const data = JSON.parse(request.requestBody);
       const resp = schema.create("product", { ...data });
       return { id: resp.id };
     });
 
     this.put("/product/image/:productId", (schema, request) => {
-      const data = JSON.parse(request.requestBody);
+      const token = request.requestHeaders.token as String;
+      if (token.split(" ")[1] !== testToken) {
+        return new Response(401, {}, { error: "Incorrect token" });
+      }
       const { productId } = request.params;
       const product = this.schema.find("product", productId);
       if (!product) {
@@ -116,6 +138,23 @@ window.server = createServer({
       }
       product.update({
         imageUrl: faker.image.food(),
+      });
+      return new Response(200);
+    });
+
+    this.patch("/product/:productId", (schema, request) => {
+      const token = request.requestHeaders.token as String;
+      if (token.split(" ")[1] !== testToken) {
+        return new Response(401, {}, { error: "Incorrect token" });
+      }
+      const data = JSON.parse(request.requestBody);
+      const { productId } = request.params;
+      const product = this.schema.find("product", productId);
+      if (!product) {
+        return new Response(404);
+      }
+      product.update({
+        ...data
       });
       return new Response(200);
     });

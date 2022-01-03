@@ -1,5 +1,14 @@
 import { api } from "./base";
 
+type Product = {
+  id: string;
+  title: string;
+  description: string;
+  price: number;
+  imageUrl: string;
+  created_at: string;
+};
+
 export async function findProductsFromApi(
   productPage: number,
   token: string,
@@ -7,6 +16,23 @@ export async function findProductsFromApi(
 ) {
   try {
     const response = await api.get(`/products/${productPage}?title=${query}`, {
+      headers: { token: `Bearer ${token}` },
+    });
+    if (!response) {
+      throw new Error("Error");
+    }
+    return response.data;
+  } catch {
+    return undefined;
+  }
+}
+
+export async function getProductsFromApi(
+  productId: string,
+  token: string,
+) {
+  try {
+    const response = await api.get(`/product/${productId}`, {
       headers: { token: `Bearer ${token}` },
     });
     if (!response) {
@@ -42,6 +68,24 @@ export async function createProductOnApi(
     const response = await api.post(
       `/product`,
       { ...data },
+      {
+        headers: { token: `Bearer ${token}` },
+      }
+    );
+    if (!response) {
+      throw new Error("Error");
+    }
+    return response.data;
+  } catch {
+    return undefined;
+  }
+}
+
+export async function editProductOnApi( productId: string , dataToEdit: Partial<Product>, token: string) {
+  try {
+    const response = await api.patch(
+      `/product/${productId}`,
+      dataToEdit,
       {
         headers: { token: `Bearer ${token}` },
       }

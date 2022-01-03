@@ -6,11 +6,13 @@ import Loading from "../../components/HomeComponents/Loading";
 import ProductsList from "../../components/HomeComponents/ProductsList";
 import RemoveProductModal from "../../components/HomeComponents/RemoveProductModal";
 import useList from "../../hooks/useList";
+import { useNavigation } from "@react-navigation/native";
 
 export const HomeScreen: React.FC = () => {
   const [productToRemoveId, setProductToRemoveId] = useState<
     undefined | string
   >(undefined);
+  const { navigate } = useNavigation();
 
   const listRef = useRef<FlatList>(null);
   const {
@@ -20,7 +22,7 @@ export const HomeScreen: React.FC = () => {
     refreshingList,
     isLoadingData,
     handleSearchProduct,
-    setProductsList
+    setProductsList,
   } = useList();
 
   function handleSearchProductQueryTyping(text: string) {
@@ -37,9 +39,9 @@ export const HomeScreen: React.FC = () => {
       const newList = productsList.filter(
         (product) => product.id !== productId
       );
-      setProductsList(newList)
+      setProductsList(newList);
     }
-    setProductToRemoveId(undefined)
+    setProductToRemoveId(undefined);
   }
 
   return (
@@ -51,6 +53,12 @@ export const HomeScreen: React.FC = () => {
           handleProductsListEndReached={handleProductsListEndReached}
           handleProductRemoveRequest={(productId) =>
             setProductToRemoveId(productId)
+          }
+          handleProductEditRequest={(item) =>
+            navigate(
+              "CreateProduct" as never,
+              { mode: "edit", editProductParams: item } as never
+            )
           }
           productsList={productsList}
           onRefresh={handleRefreshList}

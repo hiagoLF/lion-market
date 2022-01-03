@@ -1,22 +1,16 @@
 import React, { useEffect, useState } from "react";
+import { useProductsList } from "../context/ProductListContext";
 import { useRequests } from "../context/RequestsContext";
 import { findProductsFromApi } from "../services/api/requests";
 
-type Product = {
-  id: string;
-  title: string;
-  description: string;
-  price: string;
-  imageUrl: string;
-  created_at: string;
-};
-
 const useList = () => {
-  const [productsList, setProductsList] = useState<Product[]>([]);
+  const { productsList, setProductsList } = useProductsList();
   const [isLoadingData, setIsLoadingData] = useState(false);
   const [productsPage, setProductsPage] = useState<number | "last">(0);
   const [refreshingList, setRefreshingList] = useState(false);
-  const [searchProductTitleQuery, setSearchProductTitleQuery] = useState<string | undefined>(undefined)
+  const [searchProductTitleQuery, setSearchProductTitleQuery] = useState<
+    string | undefined
+  >(undefined);
   const { findProducts } = useRequests();
 
   async function handleRefreshList() {
@@ -56,14 +50,14 @@ const useList = () => {
   }
 
   function handleSearchProduct(text: string) {
-    setSearchProductTitleQuery(text)
+    setSearchProductTitleQuery(text);
   }
 
   useEffect(() => {
-    if(searchProductTitleQuery !== undefined) {
-      increaseProducts(1)
+    if (searchProductTitleQuery !== undefined) {
+      increaseProducts(1);
     }
-  }, [searchProductTitleQuery])
+  }, [searchProductTitleQuery]);
 
   useEffect(() => {
     if (productsList.length !== 0) return;
@@ -77,7 +71,7 @@ const useList = () => {
     refreshingList,
     isLoadingData,
     handleSearchProduct,
-    setProductsList
+    setProductsList,
   };
 };
 

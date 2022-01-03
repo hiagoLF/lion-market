@@ -1059,7 +1059,14 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
-"@expo/config-plugins@4.0.15", "@expo/config-plugins@^4.0.2":
+"@config-plugins/android-jsc-intl@^0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@config-plugins/android-jsc-intl/-/android-jsc-intl-0.0.2.tgz#18d06ba3b803a65d8c429c700c7fefbcb0e7bbc5"
+  integrity sha512-1x0ST7/uBIS1ZbYptrrDpGQHbjVgQfcZPE1GNoqtvXGoYIer0BVaKcxTGAoLHW6h58fu/7Lous3OnvxvA3LwBA==
+  dependencies:
+    "@expo/config-plugins" "^4.0.7"
+
+"@expo/config-plugins@4.0.15", "@expo/config-plugins@^4.0.2", "@expo/config-plugins@^4.0.7":
   version "4.0.15"
   resolved "https://registry.yarnpkg.com/@expo/config-plugins/-/config-plugins-4.0.15.tgz#cc170a0cf890973b6491cf357540e9955296019c"
   integrity sha512-QqxVEt2bFu3ZuI1soULRJv7i0Zrg/FMZ0IxNV7Y3AjH7fhtUJH3pPo9f6MURvqNr+PLxhBlkofkWfunrVejSkw==

@@ -1,4 +1,9 @@
-import { useNavigation } from "@react-navigation/native";
+import {
+  ParamListBase,
+  RouteProp,
+  useNavigation,
+  useRoute,
+} from "@react-navigation/native";
 import React, { useState } from "react";
 import { Image, ScrollView, TouchableOpacity, View } from "react-native";
 import {
@@ -13,16 +18,42 @@ import CurrencyInput from "react-native-currency-input";
 import * as ImagePicker from "expo-image-picker";
 import EmptyImg from "../../../assets/empty-img.png";
 import { useRequests } from "../../context/RequestsContext";
+import { useProductsList } from "../../context/ProductListContext";
+
+type Product = {
+  id: string;
+  title: string;
+  description: string;
+  price: number;
+  imageUrl: string;
+  created_at: string;
+};
+
+type RootStackParamList = {
+  CreateProduct?: { mode?: "create" | "edit"; editProductParams?: Product };
+};
 
 export const CreateProductScreen: React.FC = () => {
   const { goBack } = useNavigation();
-  const { colors, fonts } = useTheme();
-  const { createProduct, changeProductImage } = useRequests();
+  const { params } = useRoute<RouteProp<RootStackParamList, "CreateProduct">>();
 
-  const [image, setImage] = useState<string | undefined>(undefined);
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [price, setPrice] = useState<number | null>(0);
+  const { colors, fonts } = useTheme();
+  const { createProduct, changeProductImage, editProduct, getProduct } =
+    useRequests();
+
+  const { productsList, setProductsList } = useProductsList();
+
+  const [image, setImage] = useState<string | undefined>(
+    params?.editProductParams?.imageUrl || undefined
+  );
+  const [title, setTitle] = useState(params?.editProductParams?.title || "");
+  const [description, setDescription] = useState(
+    params?.editProductParams?.description || ""
+  );
+  const [price, setPrice] = useState<number | null>(
+    params?.editProductParams?.price || 0
+  );
+
   const [isSubmiting, setIsSubmiting] = useState(false);
 
   const pickImage = async () => {
@@ -76,11 +107,54 @@ export const CreateProductScreen: React.FC = () => {
     goBack();
   }
 
+  function editProductOnCurrentList(product: Product) {
+    const newList = [...productsList]
+    const index = newList.findIndex((current) => current.id === product.id)
+    if(index === -1) return
+    newList[index] = product
+    setProductsList(newList)
+  }
+
+  async function handleEditProductButtonPress() {
+    setIsSubmiting(true);
+    let dataToEdit: Partial<Product> = {};
+    let imageToEdit = false;
+    if (params?.editProductParams?.title !== title) dataToEdit.title = title;
+    if (params?.editProductParams?.price !== price)
+      dataToEdit.price = price as number;
+    if (params?.editProductParams?.imageUrl !== image) imageToEdit = true;
+    if (params?.editProductParams?.description !== description)
+      dataToEdit.description = description;
+    if (dataToEdit === {}) {
+      goBack();
+      return;
+    }
+    if (Object.keys(dataToEdit).length > 0) {
+      await editProduct(params?.editProductParams?.id as string, dataToEdit);
+    }
+    if (imageToEdit) {
+      await uploadImage(params?.editProductParams?.id as string);
+    }
+    const editedProduct = await getProduct(
+      params?.editProductParams?.id as string
+    );
+    if (editedProduct) {
+      editProductOnCurrentList(editedProduct);
+    }
+    alert("Dados atualizados");
+    setIsSubmiting(false);
+    goBack();
+  }
+
   return (
     <View style={{ height: "100%" }}>
       <Appbar.Header>
         <Appbar.BackAction onPress={goBack} />
-        <Appbar.Content title="Adicionar Produto" />
+        <Appbar.Content
+          title={
+            params?.mode === "edit" ? "Editar Produto" : "Adicionar Produto"
+          }
+        />
       </Appbar.Header>
 
       <ScrollView style={{ flex: 1 }}>
@@ -139,6 +213,7 @@ export const CreateProductScreen: React.FC = () => {
             right={<TextInput.Icon name="shopping-outline" />}
             mode="outlined"
             onChangeText={setTitle}
+            value={title}
           />
 
           {/* @ts-ignore */}
@@ -149,6 +224,7 @@ export const CreateProductScreen: React.FC = () => {
             right={<TextInput.Icon name="card-text-outline" />}
             mode="outlined"
             onChangeText={setDescription}
+            value={description}
           />
 
           <Title style={{ ...fonts.regular, fontSize: 15, marginLeft: 10 }}>
@@ -174,10 +250,14 @@ export const CreateProductScreen: React.FC = () => {
 
           {/* @ts-ignore */}
           <Button
-            icon="plus"
+            icon={params?.mode === "edit" ? "briefcase-edit-outline" : "plus"}
             mode="text"
             style={{ marginTop: 20 }}
-            onPress={handleSubmitProductButtonPress}
+            onPress={
+              params?.mode === "edit"
+                ? handleEditProductButtonPress
+                : handleSubmitProductButtonPress
+            }
             loading={isSubmiting}
             disabled={
               !image ||
@@ -188,7 +268,7 @@ export const CreateProductScreen: React.FC = () => {
               isSubmiting
             }
           >
-            Criar
+            {params?.mode === "edit" ? "Editar" : "Criar"}
           </Button>
         </View>
       </ScrollView>
