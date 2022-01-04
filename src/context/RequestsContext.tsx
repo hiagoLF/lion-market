@@ -148,7 +148,7 @@ export const RequestsProvider: React.FC = ({ children }) => {
     if (!response) {
       return undefined;
     }
-    return response.product;
+    return response;
   };
 
   const createProduct: CreateProduct = async (data) => {

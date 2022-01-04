@@ -19,6 +19,7 @@ import * as ImagePicker from "expo-image-picker";
 import EmptyImg from "../../../assets/empty-img.png";
 import { useRequests } from "../../context/RequestsContext";
 import { useProductsList } from "../../context/ProductListContext";
+import loadingImage from "../../../assets/images/loading.png";
 
 type Product = {
   id: string;
@@ -61,7 +62,7 @@ export const CreateProductScreen: React.FC = () => {
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [4, 3],
-      quality: 1,
+      quality: 0.5,
     });
 
     if (!result.cancelled) {
@@ -108,11 +109,11 @@ export const CreateProductScreen: React.FC = () => {
   }
 
   function editProductOnCurrentList(product: Product) {
-    const newList = [...productsList]
-    const index = newList.findIndex((current) => current.id === product.id)
-    if(index === -1) return
-    newList[index] = product
-    setProductsList(newList)
+    const newList = [...productsList];
+    const index = newList.findIndex((current) => current.id === product.id);
+    if (index === -1) return;
+    newList[index] = product;
+    setProductsList(newList);
   }
 
   async function handleEditProductButtonPress() {
@@ -138,6 +139,7 @@ export const CreateProductScreen: React.FC = () => {
     const editedProduct = await getProduct(
       params?.editProductParams?.id as string
     );
+    console.warn("editado >>> ", editProduct);
     if (editedProduct) {
       editProductOnCurrentList(editedProduct);
     }
@@ -188,6 +190,7 @@ export const CreateProductScreen: React.FC = () => {
                   width: image ? "100%" : 200,
                   height: 200,
                 }}
+                loadingIndicatorSource={loadingImage}
               />
 
               {image && (
