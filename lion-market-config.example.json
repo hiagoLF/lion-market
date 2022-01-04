@@ -1,0 +1,6 @@
+{
+  "fakeApi": true,
+  "development": true,
+  "developmentApiBaseUrl": "",
+  "productionApiBaseUrl": ""
+}

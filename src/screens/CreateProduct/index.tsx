@@ -77,7 +77,7 @@ export const CreateProductScreen: React.FC = () => {
       type: "image/jpeg",
       uri: image,
     });
-    const uploadResponse = changeProductImage(productId, formData);
+    const uploadResponse = await changeProductImage(productId, formData);
     if (!uploadResponse) {
       alert("Não foi possível fazer upload desta imagem");
       return false;

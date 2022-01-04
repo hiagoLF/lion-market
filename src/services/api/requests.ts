@@ -1,3 +1,4 @@
+import configDefinitions from "../../../lion-market-config.json";
 import { api } from "./base";
 
 type Product = {
@@ -15,9 +16,12 @@ export async function findProductsFromApi(
   query?: string
 ) {
   try {
-    const response = await api.get(`/products/${productPage}?title=${query}`, {
-      headers: { token: `Bearer ${token}` },
-    });
+    const response = await api.get(
+      `/product?page=${productPage}${query ? "&title=" + query : ""}`,
+      {
+        headers: { token: `Bearer ${token}` },
+      }
+    );
     if (!response) {
       throw new Error("Error");
     }
@@ -27,10 +31,7 @@ export async function findProductsFromApi(
   }
 }
 
-export async function getProductsFromApi(
-  productId: string,
-  token: string,
-) {
+export async function getProductsFromApi(productId: string, token: string) {
   try {
     const response = await api.get(`/product/${productId}`, {
       headers: { token: `Bearer ${token}` },
@@ -81,15 +82,15 @@ export async function createProductOnApi(
   }
 }
 
-export async function editProductOnApi( productId: string , dataToEdit: Partial<Product>, token: string) {
+export async function editProductOnApi(
+  productId: string,
+  dataToEdit: Partial<Product>,
+  token: string
+) {
   try {
-    const response = await api.patch(
-      `/product/${productId}`,
-      dataToEdit,
-      {
-        headers: { token: `Bearer ${token}` },
-      }
-    );
+    const response = await api.patch(`/product/${productId}`, dataToEdit, {
+      headers: { token: `Bearer ${token}` },
+    });
     if (!response) {
       throw new Error("Error");
     }
@@ -104,15 +105,17 @@ export async function upLoadProductImageOnApi(
   formData: FormData,
   token: string
 ) {
-  // Durante o desenvolvimento
-  const fakeServerFormData = {
-    productImage: "Image",
-  };
+  let fakeServerFormData = undefined;
+  if (configDefinitions.development && configDefinitions.fakeApi) {
+    fakeServerFormData = {
+      productImage: "Image",
+    };
+  }
 
   try {
     const response = await api.put(
       `/product/image/${productId}`,
-      fakeServerFormData,
+      fakeServerFormData || formData,
       {
         headers: {
           // "Content-Type": "multipart/form-data",
@@ -131,7 +134,7 @@ export async function upLoadProductImageOnApi(
 
 export async function loginUserOnApi(login: string, password: string) {
   try {
-    const response = await api.post("/login", { login, password });
+    const response = await api.post("/user/login", { login, password });
     if (!response) {
       throw new Error();
     }
